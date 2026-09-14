@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.smartcommerce.product_service.dto.ProductRequest;
+import com.smartcommerce.product_service.dto.ProductResponse;
 import com.smartcommerce.product_service.entity.Product;
 import com.smartcommerce.product_service.exception.ProductNotFoundException;
 import com.smartcommerce.product_service.repository.ProductRepository;
@@ -15,32 +17,65 @@ public class ProductService {
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
-    public Product createProduct(Product product) {
-    return productRepository.save(product);
+    public ProductResponse createProduct(ProductRequest request) {
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(request.getCategory());
+        product.setStock(request.getStock());
+    Product savedProduct = productRepository.save(product);
+
+    return mapToResponse(savedProduct);
 }
-public List<Product> getAllProducts() {
-    return productRepository.findAll();
+private ProductResponse mapToResponse(Product product) {
+
+    ProductResponse response = new ProductResponse();
+
+    response.setId(product.getId());
+    response.setName(product.getName());
+    response.setDescription(product.getDescription());
+    response.setPrice(product.getPrice());
+    response.setCategory(product.getCategory());
+    response.setStock(product.getStock());
+    response.setCreatedAt(product.getCreatedAt());
+    response.setUpdatedAt(product.getUpdatedAt());
+
+    return response;
+}
+public List<ProductResponse> getAllProducts() {
+
+    return productRepository.findAll()
+            .stream()
+            .map(this::mapToResponse)
+            .toList();
 }
 
-public Product getProductById(Long id) {
-    return productRepository.findById(id)
-           .orElseThrow(() -> new ProductNotFoundException(
-        "Product not found with id: " + id));
-}
-public Product updateProduct(Long id, Product productDetails) {
+public ProductResponse getProductById(Long id) {
 
     Product product = productRepository.findById(id)
             .orElseThrow(() -> new ProductNotFoundException(
                     "Product not found with id: " + id
             ));
 
-    product.setName(productDetails.getName());
-    product.setDescription(productDetails.getDescription());
-    product.setPrice(productDetails.getPrice());
-    product.setCategory(productDetails.getCategory());
-    product.setStock(productDetails.getStock());
+    return mapToResponse(product);
+}
+public ProductResponse updateProduct(Long id, ProductRequest request) {
 
-    return productRepository.save(product);
+    Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ProductNotFoundException(
+                    "Product not found with id: " + id
+            ));
+
+    product.setName(request.getName());
+    product.setDescription(request.getDescription());
+    product.setPrice(request.getPrice());
+    product.setCategory(request.getCategory());
+    product.setStock(request.getStock());
+
+    Product updatedProduct = productRepository.save(product);
+
+    return mapToResponse(updatedProduct);
 }
 public void deleteProduct(Long id) {
 
