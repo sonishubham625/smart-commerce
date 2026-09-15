@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smartcommerce.product_service.dto.ProductRequest;
 import com.smartcommerce.product_service.dto.ProductResponse;
-import com.smartcommerce.product_service.entity.Product;
 import com.smartcommerce.product_service.service.ProductService;
 
 import jakarta.validation.Valid;
